@@ -1,9 +1,10 @@
 import os
 import db_api
 from db_api import WikiPageDAO, SCHEMA_PATH
+from autosuggest import get_possible_typos
 import flask
 from flask import Flask, request
-from flask_restx import Api, Resource, fields, reqparse
+from flask_restx import Api, Resource, fields, reqparse, abort
 from dotenv import load_dotenv
 import json
 from datetime import datetime
@@ -27,10 +28,27 @@ with open(SCHEMA_PATH, 'r') as schema_file:
 schema_model = api.schema_model('model', schema['$jsonSchema']) # used for validation
 
 
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
+    return response
+
+
 # parametres which you should use in filters
 query_params = {'_id' : "Object id",
                 'name': "Name of stored object.",
-                'creation_date': 'The date of creation object in ISO format.',}
+                'russian_name': "Russian translation for name property.",
+                'creation_date': 'The date of creation object in ISO format.',
+                'description': 'English description of word, better use it with regex on.',
+                'regex': 'Boolean, determines whether to use regular expressions in search query,\
+                        can be True or False, default False. Search is case insensitive. Wrong patterns are ignored.'}
+
+def str_to_bool(s : str) -> bool:
+    '''cast string representation to bool type'''
+    if s is None: return False 
+    return s.lower() in ["true", "1", "yes", "y"]
 
 # ---------------------------- SETUP SECTION ------------------------------------------------------------------------
 
@@ -42,11 +60,20 @@ class WikiPage(Resource):
     @api.param('X-Fields', _in="header", description="Header to specify returning fields in csv.")
     @api.response(200, 'Success')
     def get(self):
+        # extract all the given params in request
         if request.headers.get('X-Fields') is not None:
             projection = [x.strip() for x in request.headers.get('X-Fields').split(",")]
         else:
             projection = None
-        resp = DAO.get(dict(request.args), projection)
+        filter = dict(request.args)
+
+        # set regex search flag
+        regex_flag = filter.get("regex", False)
+        if regex_flag is not False: # cast string representation to bool type
+            regex_flag = str_to_bool(regex_flag)
+            del filter["regex"]
+
+        resp = DAO.get(filter, projection, regex_flag)
         return resp
 
 
@@ -82,5 +109,33 @@ class WikiPage(Resource):
         filter = dict(request.args)
         deleted = DAO.delete(filter)
         return deleted, 200
+
+
+@api.route('/api/wiki/autosuggest')
+class Autosuggest(Resource):
+    @api.doc(params={"data" : "Word or part of a word which should be completed or corrected. Used for 'name' field in db.",
+                     "complete" : "Bool, set it to True if you need to autocomplete the word.",
+                     "correct" : "Bool, set it to True if you need to correct possible typos in the word."},
+             description="This request should be used for fuzzy search in db. Returns json with 'completed'\
+                          or 'corrected' or both fields (see params) and arrays of found objects.")
+    @api.param('X-Fields', _in="header", description="Header to specify returning fields in csv.")
+    @api.response(200, 'Success')
+    @api.response(400, 'Wrond querry params')
+    def get(self):
+        # extract all the given params in request
+        if request.headers.get('X-Fields') is not None:
+            projection = [x.strip() for x in request.headers.get('X-Fields').split(",")]
+        else:
+            projection = None
+        data = request.args.get("data", None)
+        if data is None:
+            abort(400)
+        data = get_possible_typos(data) # generate regex pattern to correct input data
+        resp = {"corrected" : "not requested", "completed" : "not requested"}
+        if str_to_bool(request.args.get("complete", None)):
+            resp["completed"] = DAO.get({"name" : f"^{data}"}, projection, True)
+        if str_to_bool(request.args.get("correct", None)):
+            resp["corrected"] = DAO.get({"name" : fr"^{data}\b"}, projection, True)
+        return resp
 
 app.run(HOST, PORT)

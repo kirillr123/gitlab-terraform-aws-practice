@@ -7,6 +7,7 @@ import os
 from dotenv import load_dotenv
 from bson.objectid import ObjectId
 import base64
+import re
 
 
 # doesn't override any env variables, just set them from .env file if they don't exist
@@ -82,7 +83,10 @@ class WikiPageDAO:
         '''
         if obj is None: return
         if "_id" in obj:
-            obj["_id"] = ObjectId(obj["_id"])
+            try:
+                obj["_id"] = ObjectId(obj["_id"])
+            except :
+                del obj["_id"]
         if "attachments" in obj:
             for item in obj["attachments"]:
                 if type(item["content_data"]) == type(""):
@@ -110,15 +114,26 @@ class WikiPageDAO:
                     item["content_data"] = bytes_to_str(item["content_data"])
 
 
-    def get(self, filter : dict = None, projection : list = None) -> list:
+    def get(self, filter : dict = None, projection : list = None, regex : bool = False) -> list:
         '''
         filter : an object specifying elements which must be present for a document
         to be included in the result set, if None - returns whole collection
+
         projection (optional) : a list of field names that should be returned in the result set
+
+        regex (optional, default is False) : flag which determines whether to use regular
+        expressions in search query, search is case insensitive. Wrong patterns are ignored.
 
         returns a list of documents
         '''
         self._deserialize(filter)
+        if regex:
+            for key in list(filter.keys()):
+                try: # use try in case of invalid regex pattern
+                    filter[key] = re.compile(filter[key], re.IGNORECASE)
+                except:
+                    print(f"Regex error with '{filter[key]}', can't compile")
+                    del filter[key]
         result = list(self.collection.find(filter, projection=projection))
         # serialize db results
         for item in result:
@@ -141,11 +156,14 @@ class WikiPageDAO:
 
     def update(self, modification : dict, filter : dict) -> int:
         ''' returns amount of modificated documents '''
+        self._deserialize(filter)
+        self._deserialize(modification["$set"])
         result = self.collection.update_many(update=modification, filter=filter)
         return result.modified_count
 
     def delete(self, filter : dict) -> int:
         ''' returns amount of deleted objects '''
+        self._deserialize(filter)
         result = self.collection.delete_many(filter)
         return result.deleted_count
 
@@ -154,7 +172,9 @@ if __name__ == "__main__":
     # wiki page example for testing
     val_post = {
             "name" : "val_post1",
+            "russian_name" : "",
             "description" : "val_post1",
+            "russian_description" : "",
             "tags" : [],
             "text" : "text",
             "creation_date" : datetime.utcnow(),
@@ -180,8 +200,19 @@ if __name__ == "__main__":
     print("Find wrong obj")
     print(DAO_obj.get({"name" : "val_post1"}))
 
-    print("Find correct obj, get name")
-    print(DAO_obj.get({"name" : "updated_post1"}, ["name"]))
+    print("Find correct obj, get name, attachments")
+    print(DAO_obj.get({"name" : "updated_post1"}, ["name", "attachments"]))
+
+    print("Updating attachments")
+    new_item = {
+        "content_type" : "image/jpeg",
+        "content_data" : "AAAAAAAA",
+        "description" : "title"
+    }
+    print(DAO_obj.update(set_modification({"attachments" : [new_item]}), {"name" : "updated_post1"}))
+
+    print("Find correct obj, get name, attachments")
+    print(DAO_obj.get({"name" : "updated_post1"}, ["name", "attachments"]))
 
     print("Delete wrong obj")
     print(DAO_obj.delete({"name" : "wrong_name"}))
