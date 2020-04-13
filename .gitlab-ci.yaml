@@ -1,0 +1,48 @@
+image: "python:3.7"
+
+stages:
+  - build
+  - test
+  - upload
+  - deploy
+
+build:
+  stage: build
+  script:
+    - echo "Here you should run some build scripts!"
+    - cd coreService/
+    - pip install --upgrade pip
+    - pip install -r requirements.txt
+
+test:
+  stage: test
+  script:
+    - cd coreService/
+    - python tests/test_rest.py
+    - python tests/test_content.py
+
+upload:
+  stage: upload
+  script:
+    - docker login -u $USER -p $PASSWORD
+    - docker version
+
+staging:
+  stage: deploy
+  script:
+  - apt-get update -qy
+  - apt-get install -y ruby-dev
+  - gem install dpl
+  - dpl --provider=heroku --app=gitlab-ci-python-test-staging --api-key=$HEROKU_STAGING_API_KEY
+  only:
+  - master
+
+production:
+  stage: deploy
+  script:
+  - apt-get update -qy
+  - apt-get install -y ruby-dev
+  - gem install dpl
+  - dpl --provider=heroku --app=gitlab-ci-python-test-prod --api-key=$HEROKU_PRODUCTION_API_KEY
+  only:
+  - tags
