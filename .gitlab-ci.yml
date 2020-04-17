@@ -13,12 +13,14 @@ build:
     - cd terraform/aleksey
     - curl -o terraform.zip https://releases.hashicorp.com/terraform/0.12.24/terraform_0.12.24_linux_386.zip
     - unzip terraform.zip
+    - ls -al
 
 test:
   stage: step1
   script:
     - pwd
     - cd terraform/aleksey
+    - ls -al
     - ./terraform validate
 
 plan:
