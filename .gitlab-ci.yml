@@ -1,6 +1,6 @@
 image: 
   name: "hashicorp/terraform:0.12.24"
-  entrypoint: ""
+  entrypoint: [""]
 
 stages:
   - preFlight
