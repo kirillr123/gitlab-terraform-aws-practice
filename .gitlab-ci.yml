@@ -8,20 +8,20 @@ stages:
   - step2
   - step3
 
+variables:
+  PLAN: plan-$CI_RUNNER_ID.tfplan
+
 build:
   stage: preFlight
   script:
-    - pwd
+    - env
     - cd terraform/aleksey
-    - ls -al
     - terraform -version
-
+  
 test:
   stage: step1
   script:
-    - pwd
     - cd terraform/aleksey
-    - ls -al
     - terraform init
     - terraform validate
 
@@ -30,7 +30,12 @@ plan:
   script:
     - cd terraform/aleksey
     - terraform init
-    - terraform plan -var "lock=true"
+    - terraform plan -var "lock=true" -out $PLAN
+  artifacts:
+    name: plan
+    paths:
+      - $PLAN
+
 
 apply:
   stage: step3
@@ -38,4 +43,8 @@ apply:
   script:
     - cd terraform/aleksey
     - terraform init
-    - terraform apply -var "lock=true" -auto-approve
+    - terraform apply $PLAN -var "lock=true" -auto-approve
+  artifacts:
+    name: plan
+    paths:
+      - $PLAN
