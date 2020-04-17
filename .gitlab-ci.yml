@@ -30,11 +30,12 @@ plan:
   script:
     - cd terraform/aleksey
     - terraform init
-    - terraform plan
+    - terraform plan -var "lock=true"
 
 apply:
   stage: step3
+  when: manual
   script:
     - cd terraform/aleksey
     - terraform init
-    - terraform apply
+    - terraform apply -var "lock=true" -auto-approve
