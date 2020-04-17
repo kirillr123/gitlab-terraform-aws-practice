@@ -9,7 +9,7 @@ stages:
   - step3
 
 variables:
-  PLAN: plan-$CI_RUNNER_ID.tfplan
+  PLAN: plan-$CI_JOB_ID.tfplan
 
 build:
   stage: preFlight
@@ -31,6 +31,7 @@ plan:
     - cd terraform/aleksey
     - terraform init
     - terraform plan -var "lock=true" -out $PLAN
+    - ls -la
   artifacts:
     name: plan
     paths:
