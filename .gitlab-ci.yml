@@ -1,4 +1,4 @@
-image: "python:3.7"
+image: "hashicorp/terraform:0.12.24"
 
 stages:
   - preFlight
@@ -11,9 +11,8 @@ build:
   script:
     - pwd
     - cd terraform/aleksey
-    - curl -o terraform.zip https://releases.hashicorp.com/terraform/0.12.24/terraform_0.12.24_linux_386.zip
-    - unzip terraform.zip
     - ls -al
+    - terraform --version
 
 test:
   stage: step1
@@ -21,16 +20,16 @@ test:
     - pwd
     - cd terraform/aleksey
     - ls -al
-    - ./terraform validate
+    - terraform validate
 
 plan:
   stage: step2
   script:
     - cd terraform/aleksey
-    - ./terraform plan
+    - terraform plan
 
 apply:
   stage: step3
   script:
     - cd terraform/aleksey
-    - ./terraform apply
+    - terraform apply
