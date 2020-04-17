@@ -1,48 +1,34 @@
 image: "python:3.7"
 
 stages:
-  - build
-  - test
-  - upload
-  - deploy
+  - preFlight
+  - step1
+  - step2
+  - step3
 
 build:
-  stage: build
+  stage: preFlight
   script:
-    - echo "Here you should run some build scripts!"
-    - cd coreService/
-    - pip install --upgrade pip
-    - pip install -r requirements.txt
+    - pwd
+    - cd terraform/aleksey
+    - curl -o terraform.zip https://releases.hashicorp.com/terraform/0.12.24/terraform_0.12.24_linux_386.zip
+    - unzip terraform.zip
 
 test:
-  stage: test
+  stage: step1
   script:
-    - cd coreService/
-    - python tests/test_rest.py
-    - python tests/test_content.py
+    - pwd
+    - cd terraform/aleksey
+    - ./terraform validate
 
-upload:
-  stage: upload
+plan:
+  stage: step2
   script:
-    - docker login -u $USER -p $PASSWORD
-    - docker version
+    - cd terraform/aleksey
+    - ./terraform plan
 
-staging:
-  stage: deploy
+apply:
+  stage: step3
   script:
-  - apt-get update -qy
-  - apt-get install -y ruby-dev
-  - gem install dpl
-  - dpl --provider=heroku --app=gitlab-ci-python-test-staging --api-key=$HEROKU_STAGING_API_KEY
-  only:
-  - master
-
-production:
-  stage: deploy
-  script:
-  - apt-get update -qy
-  - apt-get install -y ruby-dev
-  - gem install dpl
-  - dpl --provider=heroku --app=gitlab-ci-python-test-prod --api-key=$HEROKU_PRODUCTION_API_KEY
-  only:
-  - tags
+    - cd terraform/aleksey
+    - ./terraform apply
