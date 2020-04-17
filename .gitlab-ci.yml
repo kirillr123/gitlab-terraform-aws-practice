@@ -22,16 +22,19 @@ test:
     - pwd
     - cd terraform/aleksey
     - ls -al
+    - terraform init
     - terraform validate
 
 plan:
   stage: step2
   script:
     - cd terraform/aleksey
+    - terraform init
     - terraform plan
 
 apply:
   stage: step3
   script:
     - cd terraform/aleksey
+    - terraform init
     - terraform apply
