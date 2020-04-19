@@ -9,9 +9,9 @@ import {
     Route
 } from "react-router-dom";
 import GetPage from "./Main/GET/GetPage";
+import GetPageById from "./Main/GET/GetPageById";
 import PostPage from "./Main/POST/PostPage";
 import PutPage from "./Main/PUT/PutPage";
-import DeletePage from "./Main/DELETE/DeletePage";
 
 function App() {
     return (
@@ -21,6 +21,9 @@ function App() {
                 <Switch>
                     <Route exact path="/">
                         <Index/>
+                    </Route>
+                    <Route path="/get/:id">
+                        <GetPageById/>
                     </Route>
                     <Route path="/get">
                         <GetPage/>
@@ -33,9 +36,6 @@ function App() {
                     </Route>
                      <Route path="/put">
                         <PutPage/>
-                    </Route>
-                     <Route path="/delete">
-                        <DeletePage/>
                     </Route>
                 </Switch>
             </Router>

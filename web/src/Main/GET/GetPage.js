@@ -33,11 +33,18 @@ function GetPage() {
 
     return (
         <main>
-            <h1>Get all objects</h1>
-            <a href={"/post"} className={"link-btn"}>Create new</a>
             <ul>
                 {(models != null) ? models.map((item, key) => <li key={item._id}>
-                        <ModelElement model={item}/>
+                        <ModelElement
+                            visibleFields={[
+                                "name",
+                                "russian_description",
+                                "description",
+                                "media"
+                            ]}
+
+                            isButtonVisible={false}
+                            model={item}/>
                     </li>
                 ) : "Nothing found!"}
             </ul>

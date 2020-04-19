@@ -9,43 +9,49 @@ stages:
   - step3
 
 variables:
-  PLAN: plan-$CI_JOB_ID.tfplan
+  PLAN: plan-$CI_PIPELINE_ID.tfplan
 
 build:
   stage: preFlight
   script:
-    - env
-    - cd terraform/aleksey
+    - cd terraform/KirillR
     - terraform -version
   
 test:
   stage: step1
   script:
-    - cd terraform/aleksey
+    - cd terraform/KirillR
     - terraform init
     - terraform validate
 
 plan:
   stage: step2
   script:
-    - cd terraform/aleksey
+    - cd terraform/KirillR
     - terraform init
-    - terraform plan -var "lock=true" -out $PLAN
-    - ls -la
+    - terraform plan -out $PLAN
+
   artifacts:
     name: plan
     paths:
-      - $PLAN
-
+      - terraform/KirillR/$PLAN
 
 apply:
   stage: step3
   when: manual
   script:
-    - cd terraform/aleksey
+    - cd terraform/KirillR
     - terraform init
-    - terraform apply $PLAN -var "lock=true" -auto-approve
-  artifacts:
-    name: plan
-    paths:
-      - $PLAN
+    - terraform apply -auto-approve $PLAN
+    - ls -la
+  dependencies:
+    - plan
+
+destroy:
+  stage: step3
+  when: manual
+  script:
+    - cd terraform/KirillR
+    - terraform init
+    - terraform destroy -auto-approve
+    - ls -la
