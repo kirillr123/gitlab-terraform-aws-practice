@@ -1,6 +1,5 @@
 provider "aws" {
   region                  = "us-east-1"
-  profile                 = "default"
 }
 data "terraform_remote_state" "aws" {
   backend = "s3"
