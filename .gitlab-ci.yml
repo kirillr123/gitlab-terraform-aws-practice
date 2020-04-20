@@ -55,3 +55,4 @@ destroy:
     - terraform init
     - terraform destroy -auto-approve
     - ls -la
+
