@@ -28,3 +28,6 @@ resource "aws_instance" "aws_instance" {
   user_data = "${file("init.sh")}"
 }
 
+output "name" {
+  value = aws_instance.aws_instance.public_dns
+}

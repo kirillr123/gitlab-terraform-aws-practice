@@ -16,6 +16,7 @@ build:
   script:
     - cd terraform/KirillR
     - terraform -version
+    - docker info
   
 test:
   stage: step1
@@ -43,6 +44,9 @@ apply:
     - cd terraform/KirillR
     - terraform init
     - terraform apply -auto-approve $PLAN
+    - sudo apt-get install -y python-pip
+    - pip install docker-compose
+    - docker-compose up -d --build
     - ls -la
   dependencies:
     - plan

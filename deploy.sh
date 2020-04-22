@@ -82,7 +82,6 @@ cd ../
 export UID=${UID}
 export GID=${GID}
 
-./docker-compose -f $PROJECT_DIR/docker-compose.yml up --build -d
 # # don't use sudo if it's unnecessary
 # if ! groups | grep docker &> /dev/null; then
 #  sudo ./docker-compose -f ./docker-compose.yml up --build -d
