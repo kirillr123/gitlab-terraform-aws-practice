@@ -7,10 +7,10 @@ stages:
   - test
   - deploy
 
-  test:
-    stage: test
-    script:
-      echo run tests here
+test:
+  stage: test
+  script:
+    echo run tests here
 
 deploy:
   stage: deploy
