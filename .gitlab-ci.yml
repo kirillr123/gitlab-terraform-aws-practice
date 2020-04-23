@@ -1,5 +1,9 @@
 image: docker
 
+variables:
+  DOCKER_HOST: tcp://localhost:2375
+
+
 services:
   - docker:dind
 
