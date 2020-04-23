@@ -1,7 +1,7 @@
 image: docker
 
 variables:
-  DOCKER_HOST: tcp://localhost:2375
+  DOCKER_HOST: tcp://ec2-54-81-190-182.compute-1.amazonaws.com:2375
 
 
 services:
