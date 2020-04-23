@@ -1,61 +1,20 @@
-image: 
-  name: "hashicorp/terraform:0.12.24"
-  entrypoint: [""]
+image: docker
+
+services:
+  - docker:dind
 
 stages:
-  - preFlight
-  - step1
-  - step2
-  - step3
+  - test
+  - deploy
 
-variables:
-  PLAN: plan-$CI_PIPELINE_ID.tfplan
+  test:
+    stage: test
+    script:
+      echo run tests here
 
-build:
-  stage: preFlight
+deploy:
+  stage: deploy
   script:
-    - cd terraform/KirillR
-    - terraform -version
-  
-test:
-  stage: step1
-  script:
-    - cd terraform/KirillR
-    - terraform init
-    - terraform validate
-
-plan:
-  stage: step2
-  script:
-    - cd terraform/KirillR
-    - terraform init
-    - terraform plan -out $PLAN
-
-  artifacts:
-    name: plan
-    paths:
-      - terraform/KirillR/$PLAN
-
-apply:
-  stage: step3
-  when: manual
-  script:
-    - cd terraform/KirillR
-    - terraform init
-    - terraform apply -auto-approve $PLAN
     - sudo apt-get install -y python-pip
     - pip install docker-compose
-    - docker-compose up -d --build
-    - ls -la
-  dependencies:
-    - plan
-
-destroy:
-  stage: step3
-  when: manual
-  script:
-    - cd terraform/KirillR
-    - terraform init
-    - terraform destroy -auto-approve
-    - ls -la
-
+    - docker-compose up -d build

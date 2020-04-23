@@ -25,7 +25,6 @@ resource "aws_instance" "aws_instance" {
   instance_type = "t2.micro"
   associate_public_ip_address = true
   key_name = "default"
-  user_data = "${file("init.sh")}"
 }
 
 output "name" {
