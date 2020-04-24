@@ -10,9 +10,5 @@ deploy:
   stage: deploy
   script:
   - docker info
-  - apk update
-  - apk upgrade
-  - apk add --update-cache python python-dev py-pip build-base 
-  - pip install docker-compose
   - docker-compose up -d build
 
