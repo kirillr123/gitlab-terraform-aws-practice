@@ -38,6 +38,10 @@ build:
   when: manual
   script: 
     - git clone --single-branch --branch develop https://github.com/CsteerDevops1/wiki-framework.git
+    - touch ./wiki-framework/telegramBots/userBot/.env
+    - touch ./wiki-framework/telegramBots/initBot/.env
+    - touch ./wiki-framework/telegramBots/editBot/.env
+    
     - docker-compose up -d
   tags:
     - Kirill-runner

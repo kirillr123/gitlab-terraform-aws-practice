@@ -7,11 +7,6 @@ yum -y install git
 git clone --single-branch --branch develop https://github.com/CsteerDevops1/wiki-framework.git
 cd /wiki-framework/
 
-#prepare .envs
-touch ./telegramBots/userBot/.env
-touch ./telegramBots/initBot/.env
-touch ./telegramBots/editBot/.env
-
 #install docker
 amazon-linux-extras install docker
 systemctl start docker
