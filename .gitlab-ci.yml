@@ -1,8 +1,40 @@
-image: docker
+image: 
+  name: "hashicorp/terraform:0.12.24"
+  entrypoint: [""]
+  
+stages:
+  - preFlight
+  - step1
+  - step2
+
 services:
   - docker:dind    
+
 build:
+  stage: preFlight
   script:
+    - cd terraform/KirillR
+    - terraform -version
+
+deploy:
+  stage: step1
+  when: manual
+  script:
+    - cd terraform/KirillR
+    - terraform apply -auto-approve
+
+undeploy:
+  stage: step2
+  when: manual
+  script:
+    - cd terraform/KirillR
+    - terraform destroy -auto-approve
+
+
+build:
+  stage: step2
+  when: manual
+  script: 
     - docker-compose up -d
   tags:
     - Kirill-runner
