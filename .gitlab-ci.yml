@@ -1,16 +1,9 @@
-image: tmaier/docker-compose:latest
-variables:
-  DOCKER_DRIVER: overlay
+image: docker
 services:
-- docker:dind
-
-before_script:
-  - docker info
-  - apk add --no-cache python python-dev py-pip libffi-dev openssl-dev gcc libc-dev make
-  - pip install docker-compose
-  - docker-compose --version
- 
+  - docker:dind    
 build:
-  stage: build
   script:
-  - docker-compose -d build
+    - docker info
+    - apk add --no-cache py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
+    - pip install docker-compose
+    - docker-compose up -d
