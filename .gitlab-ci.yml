@@ -1,15 +1,13 @@
 image: tmaier/docker-compose:latest
 
-variables:
-  DOCKER_DRIVER: overlay
-
 services:
 - docker:dind
 
 before_script:
-- docker info
-
+  - docker info
+  - docker-compose --version
+ 
 build:
   stage: build
   script:
-  - docker-compose -f docker-compose.test.yml build
+  - docker-compose -d build
