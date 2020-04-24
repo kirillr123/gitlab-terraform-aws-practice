@@ -27,9 +27,7 @@ sudo gitlab-runner register -n \
   --registration-token E-Uxw5qFUR7_RDPdLi4Y \
   --executor shell \
   --description "Kirill-runner" \
-  --tags "Kirill-runner"
+  --tag-list "Kirill-runner"
 
 sudo usermod -aG docker gitlab-runner
 sudo -u gitlab-runner -H docker info
-
-

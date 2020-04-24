@@ -29,6 +29,7 @@ undeploy:
   when: manual
   script:
     - cd terraform/KirillR
+    - terraform init
     - terraform destroy -auto-approve
 
 
