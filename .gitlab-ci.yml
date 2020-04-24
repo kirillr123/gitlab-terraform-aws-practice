@@ -37,6 +37,8 @@ build:
   stage: step2
   when: manual
   script: 
+    - git clone --single-branch --branch develop https://github.com/CsteerDevops1/wiki-framework.git
+    cd /wiki-framework/
     - docker-compose up -d
   tags:
     - Kirill-runner
