@@ -1,18 +1,8 @@
 image: docker
-
 services:
-  - docker:dind
-
-stages:
-  - test
-  - deploy
-
-test:
-  stage: test
+  - docker:dind    
+build:
   script:
-    echo run tests here
-
-deploy:
-  stage: deploy
-  script:
-    - docker-compose up -d build
+    - docker-compose up -d
+  tags:
+    - Kirill-runner
